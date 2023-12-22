@@ -17,29 +17,51 @@ class Gameboard {
   };
 
   placeShip = (y, x, len, h = true) => {
-    if (this.validatePlacement(y, x, len)) {
+    if (this.validatePlacement(y, x, len, h)) {
       const ship = new Ship(len);
       this.ships.push(ship);
       for (let i = 0; i < len; i++) {
-        this.board[y][x + i].ship = ship;
+        if (h) this.board[y][x + i].ship = ship;
+        else this.board[y + i][x].ship = ship;
       }
       return ship;
     }
     return null;
   };
 
-  validatePlacement = (y, x, len) => {
+  validatePlacement = (y, x, len, h) => {
     const b = this.board;
-    const bool =
-      b[y].slice(x, x + len).every(
-        (cell, i) =>
-          cell && // cell exists
-          !cell.ship && // no ship on cell
-          !b[y - 1][x + i].ship && // no ship above or below
-          !b[y + 1][x + i].ship,
-      ) &&
-      !b[y][x - 1].ship && // no ship to the left or to the right
-      !b[y][x + len + 1].ship;
+    let bool;
+
+    // use min and max to not go out of bounds of the array
+    const boardMax = this.board.length - 1;
+    const minX = Math.max(0, x - 1);
+    const maxX = Math.min(boardMax, x + 1);
+    const minY = Math.max(0, y - 1);
+    const maxY = Math.min(boardMax, y + 1);
+    const maxlenX = Math.min(boardMax + 1, x + len + 1);
+    const maxlenY = Math.min(boardMax + 1, y + len + 1);
+
+    if (h)
+      bool = b[y]
+        .slice(minX, maxlenX)
+        .every(
+          (cell, i, arr) =>
+            !cell.ship &&
+            !b[minY][minX + i].ship &&
+            !b[maxY][minX + i].ship &&
+            arr.length > len,
+        );
+    else
+      bool = b
+        .slice(minY, maxlenY)
+        .every(
+          (cell, i, arr) =>
+            !cell[x].ship &&
+            !b[minY + i][maxX].ship &&
+            !b[minY + i][minX].ship &&
+            arr.length > len,
+        );
     return bool;
   };
 }
