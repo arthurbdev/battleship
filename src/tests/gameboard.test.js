@@ -57,3 +57,30 @@ test("Place ship vertical", () => {
   expect(gameboard.placeShip(7, 0, 3, false)).not.toBeNull();
   expect(gameboard.placeShip(0, 0, 3, false)).not.toBeNull();
 });
+
+test("Receive attack", () => {
+  const gameboard = new Gameboard();
+  const sh = gameboard.placeShip(0, 0, 4, false);
+  expect(gameboard.receiveAttack(3, 0)).toBe("hit");
+  expect(gameboard.board[3][0].isHit).toBe(true);
+  expect(gameboard.receiveAttack(5, 5)).toBe("miss");
+  expect(gameboard.board[5][0].isHit).toBe(false);
+  expect(gameboard.receiveAttack(3, 0)).toBeNull();
+  expect(sh.hp).toBe(3);
+
+  // ship is destroyed
+  expect(gameboard.receiveAttack(0, 0)).toBe("hit");
+  expect(sh.hp).toBe(2);
+  expect(gameboard.board[0][0].isHit).toBe(true);
+  expect(gameboard.receiveAttack(1, 0)).toBe("hit");
+  expect(gameboard.board[1][0].isHit).toBe(true);
+  expect(sh.hp).toBe(1);
+  expect(gameboard.receiveAttack(2, 0)).toBe("sunk");
+  expect(gameboard.board[2][0].isHit).toBe(true);
+  expect(gameboard.board[0][0].ship.isSunk()).toBe(true);
+
+  expect(gameboard.receiveAttack(0, 0)).toBeNull();
+  expect(gameboard.board[0][0].isHit).toBe(true);
+
+  expect(sh.isSunk()).toBe(true);
+});
