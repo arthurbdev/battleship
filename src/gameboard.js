@@ -64,6 +64,19 @@ class Gameboard {
         );
     return bool;
   };
+
+  printBoard = () => {
+    console.log("  0 1 2 3 4 5 6 7 8 9 x");
+    this.board.forEach((row, index) => {
+      let str = "";
+      str += index;
+      row.forEach((cell) => {
+        str += `${cell.ship ? " s" : " _"}`;
+      });
+      console.log(str);
+    });
+    console.log("y");
+  };
 }
 
 export default Gameboard;
