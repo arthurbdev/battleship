@@ -86,9 +86,16 @@ class Gameboard {
     this.board.forEach((row, index) => {
       let str = "";
       str += index;
-      row.forEach((cell) => {
-        str += `${cell.ship ? " s" : " _"}`;
-      });
+      for (let i = 0; i < row.length; i++) {
+        let ch = " _";
+        if (row[i].ship) {
+          ch = " s";
+        }
+        if (row[i].isHit) {
+          ch = " *";
+        }
+        str += ch;
+      }
       console.log(str);
     });
     console.log("y");
