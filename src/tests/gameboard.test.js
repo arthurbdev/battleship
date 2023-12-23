@@ -84,3 +84,20 @@ test("Receive attack", () => {
 
   expect(sh.isSunk()).toBe(true);
 });
+
+test("All ships are sunk", () => {
+  const b = new Gameboard();
+  b.placeShip(0, 0, 1);
+  b.placeShip(3, 3, 2);
+  b.placeShip(7, 8, 3, false);
+  expect(b.ships.length).toBe(3);
+  b.printBoard();
+  b.receiveAttack(0, 0);
+  b.receiveAttack(3, 3);
+  b.receiveAttack(3, 4);
+  expect(b.isGameOver()).toBe(false);
+  b.receiveAttack(7, 8);
+  b.receiveAttack(8, 8);
+  b.receiveAttack(9, 8);
+  expect(b.isGameOver()).toBe(true);
+});
