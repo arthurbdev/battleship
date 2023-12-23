@@ -65,6 +65,22 @@ class Gameboard {
     return bool;
   };
 
+  receiveAttack = (y, x) => {
+    const cell = this.board[y][x];
+    if (!cell.isHit) {
+      cell.isHit = true;
+      if (cell.ship) {
+        cell.ship.hit();
+        if (cell.ship.isSunk()) {
+          return "sunk";
+        }
+        return "hit";
+      }
+      return "miss";
+    }
+    return null;
+  };
+
   printBoard = () => {
     console.log("  0 1 2 3 4 5 6 7 8 9 x");
     this.board.forEach((row, index) => {
