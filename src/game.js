@@ -1,9 +1,14 @@
-import * as readline from "node:readline/promises"; // This uses the promise-based APIs
-import { stdin as input, stdout as output } from "node:process";
-
 import Player from "./player";
 
 class Game {
+  constructor(fleet) {
+    this.p1 = new Player("Player 1");
+    this.p2 = new Player("AI");
+    this.p2.placeFleet(fleet);
+    this.currentPlayer = this.p1;
+    this.oppositePlayer = this.p2;
+  }
+
   swapPlayers = () => {
     this.currentPlayer = this.currentPlayer === this.p1 ? this.p2 : this.p1;
     this.oppositePlayer = this.oppositePlayer === this.p1 ? this.p2 : this.p1;
@@ -24,39 +29,6 @@ class Game {
   checkWinner = () => {
     if (this.currentPlayer.board.isGameOver()) return this.oppositePlayer;
     return false;
-  };
-
-  newGame = async (p1, fleet) => {
-    this.p1 = p1;
-    this.p2 = new Player("AI");
-    this.p2.placeFleet(fleet);
-    this.currentPlayer = this.p1;
-    this.oppositePlayer = this.p2;
-    const rl = readline.createInterface({ input, output });
-
-    let winner = false;
-
-    while (!winner) {
-      let res;
-      console.clear();
-      console.log(`${this.currentPlayer.name} attacks!`);
-      this.printBoards();
-      if (this.currentPlayer === this.p1) {
-        /* eslint-disable no-await-in-loop */
-        const answer = await rl.question(
-          "Enter x and y coordinates for attack: ",
-        );
-        /* eslint-enable no-await-in-loop */
-        const [x, y] = answer.split(" ").map((i) => parseInt(i, 10));
-        res = this.makeTurn(y, x);
-      } else {
-        res = this.autoTurn();
-      }
-      if (res === "sunk") winner = this.checkWinner();
-    }
-
-    rl.close();
-    return winner;
   };
 
   printBoards = () => {
