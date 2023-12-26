@@ -9,6 +9,7 @@ class DisplayController {
   init = () => {
     this.content = document.getElementById("content");
     this.modalOverlay = document.querySelector(".modalOverlay");
+    this.createStatus();
     this.createBoards();
     this.enemyBoard.addEventListener("click", this.makeTurn);
   };
@@ -121,6 +122,17 @@ class DisplayController {
     this.content.innerHTML = "";
     this.game = new Game();
     this.init();
+  };
+
+  createStatus = () => {
+    this.status = document.createElement("div");
+    this.status.className = "status";
+    this.status.textContent = "Click on the enemy board to attack...";
+    this.content.appendChild(this.status);
+  };
+
+  setStatus = (...text) => {
+    this.status.textContent = text;
   };
 }
 

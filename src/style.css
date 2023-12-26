@@ -24,16 +24,33 @@ h1 {
 }
 
 #content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 50px;
+  display: grid;
+  grid-template-rows: 3fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 100px;
+}
+
+.status {
+  grid-row: 2 / 3;
+  grid-column: 1 / 3;
+  place-self: center;
+  font-size: 2.5rem;
+  background-color: var(--bg2-color);
+  padding: 20px;
+  width: 50%;
+  border-radius: 20px;
+  text-align: end;
+  border: 3px solid var(--light-color);
 }
 
 .playerBoard,
 .enemyBoard {
   display: flex;
   flex-direction: column;
+}
+
+.playerBoard {
+  justify-self: right;
 }
 
 .row {
