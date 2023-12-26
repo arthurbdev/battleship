@@ -11,7 +11,9 @@ class DisplayController {
     this.modalOverlay = document.querySelector(".modalOverlay");
     this.createStatus();
     this.createBoards();
-    this.enemyBoard.addEventListener("click", this.makeTurn);
+    this.enemyBoard.addEventListener("click", (e) => {
+      if (!this.isRunning) this.makeTurn(e);
+    });
   };
 
   createBoards = () => {
@@ -69,15 +71,17 @@ class DisplayController {
     }
   };
 
-  makeTurn = (e) => {
+  makeTurn = async (e) => {
     const cell = e.target;
     if (!cell.classList.contains("cell")) return;
+    this.isRunning = true;
 
     const [y, x] = this.getCellCoordinates(cell);
 
     const playerResult = this.game.makeTurn(y, x);
     if (!playerResult) return;
-    console.log(`You attacked ${y} ${x}`);
+    this.updateBoards();
+    await this.setStatus(this.getResultText(playerResult));
     console.log(playerResult);
 
     let winner = this.game.checkWinner();
@@ -86,15 +90,30 @@ class DisplayController {
       return;
     }
 
-    console.log("Enemy is attacking...");
     const enemyResult = this.game.autoTurn();
-    console.log(enemyResult);
     this.updateBoards();
+    await this.setStatus(this.getResultText(enemyResult));
 
     winner = this.game.checkWinner();
     if (winner) {
       this.displayEndScreen(winner);
     }
+    this.isRunning = false;
+  };
+
+  getResultText = (result) => {
+    const player = this.game.oppositePlayer.name;
+    const pl2 = this.game.currentPlayer.name;
+    switch (result) {
+      case "miss":
+        return `${player} missed.`;
+      case "hit":
+        return `${player} hit ${pl2}'s ship`;
+      case "sunk":
+        return `${player} has sunk ${pl2}'s ship`;
+      default:
+    }
+    return "";
   };
 
   getCellCoordinates = (cell) => {
@@ -134,13 +153,19 @@ class DisplayController {
     this.content.appendChild(statusDiv);
   };
 
-  setStatus = (...text) => {
-    // reset animation
-    this.status.classList.remove("statusText");
-    void this.status.offsetWidth;
-    this.status.classList.add("statusText");
-    this.status.textContent = `${text}…`;
-  };
+  setStatus = async (...text) =>
+    new Promise((resolve) => {
+      const onAnimationEndCb = () => {
+        this.status.removeEventListener("animationend", onAnimationEndCb);
+        resolve();
+      };
+      // reset animation
+      this.status.classList.remove("statusText");
+      void this.status.offsetWidth;
+      this.status.addEventListener("animationend", onAnimationEndCb);
+      this.status.classList.add("statusText");
+      this.status.textContent = `${text}…`;
+    });
 }
 
 export default DisplayController;
