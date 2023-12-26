@@ -8,6 +8,7 @@ class DisplayController {
 
   init = () => {
     this.content = document.getElementById("content");
+    this.modalOverlay = document.querySelector(".modalOverlay");
     this.createBoards();
     this.enemyBoard.addEventListener("click", this.makeTurn);
   };
@@ -78,10 +79,21 @@ class DisplayController {
     console.log(`You attacked ${y} ${x}`);
     console.log(playerResult);
 
+    let winner = this.game.checkWinner();
+    if (winner) {
+      this.displayEndScreen(winner);
+      return;
+    }
+
     console.log("Enemy is attacking...");
     const enemyResult = this.game.autoTurn();
     console.log(enemyResult);
     this.updateBoards();
+
+    winner = this.game.checkWinner();
+    if (winner) {
+      this.displayEndScreen(winner);
+    }
   };
 
   getCellCoordinates = (cell) => {
@@ -90,6 +102,20 @@ class DisplayController {
     const y = [...this.enemyBoard.children].indexOf(row);
 
     return [y, x];
+  };
+
+  displayEndScreen = (winner) => {
+    this.modalOverlay.classList.remove("hidden");
+
+    const resultText = this.modalOverlay.querySelector("p");
+    resultText.textContent =
+      winner.name === this.game.p1.name ? "You won!" : "You lost!";
+
+    const playagainBtn = this.modalOverlay.querySelector("button");
+
+    playagainBtn.addEventListener("click", () => {
+      this.modalOverlay.classList.add("hidden");
+    });
   };
 }
 
