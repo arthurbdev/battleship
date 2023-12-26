@@ -1,10 +1,10 @@
 import Player from "./player";
 
 class Game {
-  constructor(fleet) {
+  constructor() {
     this.p1 = new Player("Player 1");
     this.p2 = new Player("AI");
-    this.p2.placeFleet(fleet);
+    this.p2.placeFleet(Game.fleet);
     this.currentPlayer = this.p1;
     this.oppositePlayer = this.p2;
   }
@@ -56,6 +56,13 @@ class Game {
       str += `${str1}\t\t${str2}`;
       console.log(str);
     }
+  };
+
+  static fleet = {
+    2: 1,
+    3: 2,
+    4: 1,
+    5: 2,
   };
 }
 
