@@ -146,9 +146,15 @@ class DisplayController {
   createStatus = () => {
     const statusDiv = document.createElement("div");
     statusDiv.className = "status";
+
+    const prompt = document.createElement("p");
+    prompt.className = "prompt";
+    prompt.textContent = `[${this.game.p1.name}@arthurbais.com] ~/games/battleship.js $`;
+
     this.status = document.createElement("p");
     this.status.className = "statusText";
     this.status.textContent = "Click on the enemy board to attack...";
+    statusDiv.appendChild(prompt);
     statusDiv.appendChild(this.status);
     this.content.appendChild(statusDiv);
   };

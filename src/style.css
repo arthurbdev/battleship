@@ -37,15 +37,25 @@ h1 {
   font-size: 2.5rem;
   background-color: var(--bg2-color);
   padding: 20px;
-  width: 50%;
+  width: 60%;
   border-radius: 20px;
   text-align: end;
   border: 3px solid var(--light-color);
   display: flex;
-  justify-content: flex-end;
+  font-family: monospace;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.prompt {
+  justify-self: flex-start;
+  max-width: fit-content;
 }
 
 .statusText {
+  max-width: fit-content;
+  justify-self: flex-end;
   overflow: hidden; /* Ensures the content is not revealed until the animation */
   padding-right: 0.2em;
   border-right: 0.5em solid var(--light-color); /* The typwriter cursor */
