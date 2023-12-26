@@ -50,12 +50,16 @@ class DisplayController {
 
         if (playerBoard[y][x].ship) {
           playerCell.classList.add("boardShip");
+        } else if (playerBoard[y][x].isHit) {
+          playerCell.classList.add("boardHit");
         } else {
           playerCell.className = "cell";
         }
 
         if (enemyBoard[y][x].ship) {
           enemyCell.classList.add("boardShip");
+        } else if (enemyBoard[y][x].isHit) {
+          enemyCell.classList.add("boardHit");
         } else {
           enemyCell.className = "cell";
         }

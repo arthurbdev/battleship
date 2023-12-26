@@ -58,3 +58,7 @@ h1 {
 .boardShip {
   background-color: var(--fg-color);
 }
+
+.boardHit {
+  background-color: red;
+}
