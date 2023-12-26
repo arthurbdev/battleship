@@ -1,0 +1,56 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style-type: none;
+}
+
+:root {
+  --bg-color: #062925;
+  --bg2-color: #044a42;
+  --fg-color: #3a9188;
+  --light-color: #b8e1dd;
+}
+
+body {
+  position: relative;
+  background-color: var(--bg-color);
+  color: var(--light-color);
+}
+
+h1 {
+  font-size: 50px;
+  padding: 30px;
+}
+
+#content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+}
+
+.playerBoard,
+.enemyBoard {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  height: 50px;
+  width: 50px;
+  border: 1px solid var(--light-color);
+  transition: background-color 0.4s;
+}
+
+.row + .row .cell {
+  border-top: 0;
+}
+
+.cell + .cell {
+  border-left: 0;
+}
