@@ -113,9 +113,14 @@ class DisplayController {
 
     const playagainBtn = this.modalOverlay.querySelector("button");
 
-    playagainBtn.addEventListener("click", () => {
-      this.modalOverlay.classList.add("hidden");
-    });
+    playagainBtn.addEventListener("click", this.resetGame);
+  };
+
+  resetGame = () => {
+    this.modalOverlay.classList.add("hidden");
+    this.content.innerHTML = "";
+    this.game = new Game();
+    this.init();
   };
 }
 
