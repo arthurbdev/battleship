@@ -17,7 +17,9 @@ class Game {
 
   makeTurn = (y, x) => {
     const res = this.currentPlayer.attack(y, x, this.oppositePlayer.board);
-    this.swapPlayers();
+    if (res !== null) {
+      this.swapPlayers();
+    }
     return res;
   };
 
