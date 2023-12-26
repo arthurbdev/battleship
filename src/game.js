@@ -4,6 +4,7 @@ class Game {
   constructor() {
     this.p1 = new Player("Player 1");
     this.p2 = new Player("AI");
+    this.p1.placeFleet(Game.fleet);
     this.p2.placeFleet(Game.fleet);
     this.currentPlayer = this.p1;
     this.oppositePlayer = this.p2;

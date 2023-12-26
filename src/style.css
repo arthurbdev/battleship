@@ -54,3 +54,7 @@ h1 {
 .cell + .cell {
   border-left: 0;
 }
+
+.boardShip {
+  background-color: var(--fg-color);
+}
