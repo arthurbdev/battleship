@@ -41,6 +41,38 @@ h1 {
   border-radius: 20px;
   text-align: end;
   border: 3px solid var(--light-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.statusText {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  padding-right: 0.2em;
+  border-right: 0.5em solid var(--light-color); /* The typwriter cursor */
+  white-space: nowrap;
+  animation:
+    typing 2s steps(40, end),
+    blink-caret 1s step-end infinite;
+}
+/* The typing effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--light-color);
+  }
 }
 
 .playerBoard,

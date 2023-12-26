@@ -125,14 +125,21 @@ class DisplayController {
   };
 
   createStatus = () => {
-    this.status = document.createElement("div");
-    this.status.className = "status";
+    const statusDiv = document.createElement("div");
+    statusDiv.className = "status";
+    this.status = document.createElement("p");
+    this.status.className = "statusText";
     this.status.textContent = "Click on the enemy board to attack...";
-    this.content.appendChild(this.status);
+    statusDiv.appendChild(this.status);
+    this.content.appendChild(statusDiv);
   };
 
   setStatus = (...text) => {
-    this.status.textContent = text;
+    // reset animation
+    this.status.classList.remove("statusText");
+    void this.status.offsetWidth;
+    this.status.classList.add("statusText");
+    this.status.textContent = `${text}…`;
   };
 }
 
