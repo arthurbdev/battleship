@@ -99,19 +99,30 @@ class DisplayController {
       this.displayEndScreen(winner);
     }
     this.isRunning = false;
+    await this.setStatus("Your turn");
   };
 
   getResultText = (result) => {
-    const player = this.game.oppositePlayer.name;
-    const pl2 = this.game.currentPlayer.name;
-    switch (result) {
-      case "miss":
-        return `${player} missed.`;
-      case "hit":
-        return `${player} hit ${pl2}'s ship`;
-      case "sunk":
-        return `${player} has sunk ${pl2}'s ship`;
-      default:
+    if (this.game.oppositePlayer === this.game.p1) {
+      switch (result) {
+        case "miss":
+          return `You have missed`;
+        case "hit":
+          return `You have hit their ship`;
+        case "sunk":
+          return `You have sunk their ship`;
+        default:
+      }
+    } else {
+      switch (result) {
+        case "miss":
+          return `They have missed`;
+        case "hit":
+          return `They have hit your ship`;
+        case "sunk":
+          return `They have sunk your ship`;
+        default:
+      }
     }
     return "";
   };
