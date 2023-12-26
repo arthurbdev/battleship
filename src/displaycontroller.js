@@ -9,6 +9,7 @@ class DisplayController {
   init = () => {
     this.content = document.getElementById("content");
     this.createBoards();
+    this.enemyBoard.addEventListener("click", this.makeTurn);
   };
 
   createBoards = () => {
@@ -60,6 +61,31 @@ class DisplayController {
         }
       }
     }
+  };
+
+  makeTurn = (e) => {
+    const cell = e.target;
+    if (!cell.classList.contains("cell")) return;
+
+    const [y, x] = this.getCellCoordinates(cell);
+
+    const playerResult = this.game.makeTurn(y, x);
+    if (!playerResult) return;
+    console.log(`You attacked ${y} ${x}`);
+    console.log(playerResult);
+
+    console.log("Enemy is attacking...");
+    const enemyResult = this.game.autoTurn();
+    console.log(enemyResult);
+    this.updateBoards();
+  };
+
+  getCellCoordinates = (cell) => {
+    const row = cell.parentElement;
+    const x = [...row.children].indexOf(cell);
+    const y = [...this.enemyBoard.children].indexOf(row);
+
+    return [y, x];
   };
 }
 
