@@ -34,6 +34,16 @@ class Player {
       }
     }
   };
+
+  getFleet = () => {
+    const fleet = {};
+    this.board.ships.forEach((ship) => {
+      if (!ship.isSunk()) {
+        fleet[ship.length] = fleet[ship.length] ? ++fleet[ship.length] : 1;
+      }
+    });
+    return fleet;
+  };
 }
 
 export default Player;

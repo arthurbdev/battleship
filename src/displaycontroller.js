@@ -11,6 +11,8 @@ class DisplayController {
     this.modalOverlay = document.querySelector(".modalOverlay");
     this.createStatus();
     this.createBoards();
+    this.createFleetCounters();
+
     this.enemyBoard.addEventListener("click", (e) => {
       if (!this.isRunning) this.makeTurn(e);
     });
@@ -54,21 +56,67 @@ class DisplayController {
 
         if (playerBoard[y][x].ship) {
           playerCell.classList.add("boardShip");
-        } else if (playerBoard[y][x].isHit) {
-          playerCell.classList.add("boardHit");
         } else {
           playerCell.className = "cell";
         }
 
+        if (playerBoard[y][x].isHit) {
+          playerCell.classList.add("boardHit");
+        }
+
         if (enemyBoard[y][x].ship) {
           enemyCell.classList.add("boardShip");
-        } else if (enemyBoard[y][x].isHit) {
-          enemyCell.classList.add("boardHit");
         } else {
           enemyCell.className = "cell";
         }
+        if (enemyBoard[y][x].isHit) {
+          enemyCell.classList.add("boardHit");
+        }
       }
     }
+  };
+
+  createFleetCounters = () => {
+    this.playerFleetContainer = this.createFleetCounter(
+      this.game.p1.getFleet(),
+    );
+    this.enemyFleetContainer = this.createFleetCounter(this.game.p2.getFleet());
+    this.content.insertBefore(this.playerFleetContainer, this.playerBoard);
+    this.content.insertBefore(this.enemyFleetContainer, this.enemyBoard);
+  };
+
+  createFleetCounter = (fleet) => {
+    const fleetContainer = document.createElement("div");
+    fleetContainer.className = "fleetContainer";
+
+    Object.keys(fleet).forEach((key) => {
+      const number = fleet[key];
+      const shipDiv = document.createElement("div");
+      shipDiv.className = "shipDiv";
+      const shipCounter = document.createElement("span");
+      shipCounter.className = "shipCounter";
+      shipCounter.textContent = `x ${number}`;
+      for (let i = 0; i < key; i++) {
+        const shipCell = document.createElement("div");
+        shipCell.className = "shipCell";
+        shipDiv.appendChild(shipCell);
+      }
+      shipDiv.appendChild(shipCounter);
+      fleetContainer.appendChild(shipDiv);
+    });
+    this.updateFleetCounter(fleetContainer, fleet);
+    return fleetContainer;
+  };
+
+  updateFleetCounter = (fleetContainer, fleet) => {
+    [...fleetContainer.children].forEach((shipType) => {
+      const len = shipType.children.length - 1;
+      if (!fleet[len]) {
+        shipType.remove();
+      } else {
+        shipType.querySelector(".shipCounter").textContent = `x ${fleet[len]}`;
+      }
+    });
   };
 
   makeTurn = async (e) => {
@@ -84,8 +132,8 @@ class DisplayController {
       return;
     }
     this.updateBoards();
+    this.updateFleetCounter(this.playerFleetContainer, this.game.p1.getFleet());
     await this.setStatus(this.getResultText(playerResult));
-    console.log(playerResult);
 
     let winner = this.game.checkWinner();
     if (winner) {
@@ -95,6 +143,7 @@ class DisplayController {
 
     const enemyResult = this.game.autoTurn();
     this.updateBoards();
+    this.updateFleetCounter(this.enemyFleetContainer, this.game.p2.getFleet());
     await this.setStatus(this.getResultText(enemyResult));
 
     winner = this.game.checkWinner();
