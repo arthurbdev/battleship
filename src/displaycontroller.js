@@ -79,7 +79,10 @@ class DisplayController {
     const [y, x] = this.getCellCoordinates(cell);
 
     const playerResult = this.game.makeTurn(y, x);
-    if (!playerResult) return;
+    if (!playerResult) {
+      this.isRunning = false;
+      return;
+    }
     this.updateBoards();
     await this.setStatus(this.getResultText(playerResult));
     console.log(playerResult);
