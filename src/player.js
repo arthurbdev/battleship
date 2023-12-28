@@ -20,6 +20,7 @@ class Player {
   };
 
   placeFleet = (fleet) => {
+    if (this.board.ships) this.resetBoard();
     const maxW = this.board.board.length;
     const keys = Object.keys(fleet);
     for (let i = keys.length - 1; i >= 0; i--) {
@@ -44,6 +45,31 @@ class Player {
     });
     return fleet;
   };
+
+  getUnplacedFleet = (defaultFleet) => {
+    const placedFleet = this.getFleet();
+    const res = {};
+    Object.keys(defaultFleet).forEach((key) => {
+      if (placedFleet[key]) {
+        const num = defaultFleet[key] - placedFleet[key];
+        if (num > 0) {
+          res[key] = num;
+        }
+      } else {
+        res[key] = defaultFleet[key];
+      }
+    });
+    return res;
+  };
+
+  isFleetPlaced = (defaultFleet) =>
+    Object.keys(this.getUnplacedFleet(defaultFleet)).length === 0;
+
+  resetBoard = () => {
+    this.board = new Gameboard();
+  };
+
+  getBoard = () => this.board.board;
 }
 
 export default Player;

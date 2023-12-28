@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Single+Day&family=Ubuntu+Mono&display=swap");
 * {
   margin: 0;
   padding: 0;
@@ -16,6 +17,12 @@ body {
   position: relative;
   background-color: var(--bg-color);
   color: var(--light-color);
+  font-family: "Single Day", sans-serif;
+  min-height: 100vh;
+}
+
+button {
+  font-family: "Single Day", sans-serif;
 }
 
 h1 {
@@ -27,13 +34,15 @@ h1 {
   display: grid;
   grid-template-rows: 1fr 2fr 1fr;
   grid-template-columns: 1fr 1fr;
-  column-gap: 100px;
+  column-gap: 5em;
+  row-gap: 2em;
 }
 
 .fleetContainer {
   grid-row: 1 / 2;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 0.5em;
 }
 
@@ -41,10 +50,16 @@ h1 {
   justify-self: end;
 }
 
+.ship {
+  display: flex;
+  cursor: grab;
+}
+
 .shipCounter {
   font-size: 2rem;
   margin-right: auto;
   margin-left: 0.3em;
+  white-space: nowrap;
 }
 
 .playerBoard {
@@ -59,22 +74,31 @@ h1 {
   align-self: center;
 }
 
+.enemyBoard {
+  cursor: crosshair;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
 .status {
   grid-row: 3 / 4;
   grid-column: 1 / 3;
   place-self: center;
-  font-size: 2.5rem;
   background-color: var(--bg2-color);
   padding: 20px;
-  width: 60%;
+  min-width: min(60%, 50em);
   border-radius: 20px;
   text-align: end;
   border: 3px solid var(--light-color);
   display: flex;
-  font-family: monospace;
+  flex-direction: column;
+  font-family: "Ubuntu mono", monospace;
   justify-content: space-between;
   font-size: 1.5rem;
-  flex-wrap: wrap;
 }
 
 .prompt {
@@ -90,7 +114,7 @@ h1 {
   border-right: 0.5em solid var(--light-color); /* The typwriter cursor */
   white-space: nowrap;
   animation:
-    typing 2s steps(40, end),
+    typing 1.5s steps(40, end),
     blink-caret 1s step-end infinite;
 }
 /* The typing effect */
@@ -121,30 +145,67 @@ h1 {
 
 .cell,
 .shipCell {
-  height: 50px;
-  width: 50px;
+  position: relative;
+  height: 2.5em;
+  width: 2.5em;
   border: 1px solid var(--light-color);
   transition: background-color 0.4s;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
 .row + .row .cell {
   border-top: 0;
 }
 
-.cell + .cell {
+.fleetContainer:not(.vertical) .shipCell + .shipCell {
   border-left: 0;
 }
 
-.boardShip {
-  background-color: var(--fg-color);
+.fleetContainer.vertical .shipCell + .shipCell {
+  border-top: 0;
 }
 
-.boardHit {
-  background-color: red;
+.playerBoard .boardShip,
+.board .boardShip,
+.enemyBoard .boardHit.boardShip,
+.fleetContainer .shipCell {
+  /* background-color: var(--fg-color); */
+  background-image: url("./battleship.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position:
+    bottom center,
+    50%,
+    50%;
+}
+
+.boardHit::before {
+  content: "";
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: #14b8a6;
 }
 
 .boardHit.boardShip {
-  background-color: pink;
+  filter: brightness(0) saturate(100%) invert(14%) sepia(48%) saturate(6151%)
+    hue-rotate(353deg) brightness(106%) contrast(88%);
+}
+
+.boardHit.boardShip::before {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #b91c1c;
+  border: none;
 }
 
 .modalOverlay {
@@ -178,16 +239,158 @@ h1 {
   border: 3px solid var(--fg-color);
 }
 
-.playAgainBtn {
-  font-size: 3rem;
-  padding: 30px;
+.startScreenModal {
+  transform: translate(-50%, -50%);
+  background-color: var(--bg2-color);
+  position: absolute;
+  left: 50%;
+  min-width: min(90%, 50em);
+  top: 50%;
+  padding: 2em;
+  border-radius: 20px;
+  display: grid;
+  grid-template-rows: 4fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+}
+
+.vertical {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.vertical * {
+  flex-direction: column;
+}
+
+button {
+  font-size: 1.5rem;
+  padding: 0.5em 1em;
   border-radius: 20px;
   background-color: var(--bg-color);
   outline: none;
   color: var(--light-color);
   border: 3px solid var(--fg-color);
+  cursor: pointer;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1em;
+}
+
+.right > .fleetContainer {
+  align-self: flex-start;
+  min-height: 15em;
+  justify-content: center;
+}
+
+.fleetContainer:empty {
+  min-height: 0;
+}
+
+.left {
+  place-self: center;
+}
+
+.bottom {
+  grid-row: 2 / 3;
+  grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+.messageBox {
+  font-size: 1.5rem;
+  background-color: var(--light-color);
+  color: var(--bg2-color);
+  font-family: "Single Day", sans-serif;
+  padding: 0.5em;
+  border-radius: 0.7em;
+  justify-self: flex-end;
+}
+
+.switchAxisBtn {
+  align-self: center;
+}
+
+.shiny {
+  animation:
+    borderPulse 1000ms infinite ease-out,
+    hoverShine 200ms;
 }
 
 .hidden {
   display: none;
+}
+
+.valid {
+  background-color: var(--fg-color);
+}
+
+.invalid {
+  background-color: #b91c1c;
+}
+
+.green {
+  color: #4ade80;
+}
+
+.lightblue {
+  color: #22d3ee;
+}
+
+.blue {
+  color: #60a5fa;
+}
+
+button:hover {
+  animation:
+    borderPulse 1000ms infinite ease-out,
+    hoverShine 200ms;
+}
+
+/* Declare shine on hover animation */
+@keyframes hoverShine {
+  0% {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+  50% {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+  100% {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.4) 100%
+    );
+  }
+}
+/* Declare border pulse animation */
+@keyframes borderPulse {
+  0% {
+    box-shadow:
+      inset 0px 0px 0px 5px rgba(255, 255, 255, 0.4),
+      0px 0px 0px 0px rgba(255, 255, 255, 1);
+  }
+  100% {
+    box-shadow:
+      inset 0px 0px 0px 3px rgba(117, 117, 255, 0.2),
+      0px 0px 0px 10px rgba(255, 255, 255, 0);
+  }
 }

@@ -9,18 +9,155 @@ class DisplayController {
   init = () => {
     this.content = document.getElementById("content");
     this.modalOverlay = document.querySelector(".modalOverlay");
-    this.createStatus();
-    this.createBoards();
-    this.createFleetCounters();
-
-    this.enemyBoard.addEventListener("click", (e) => {
-      if (!this.isRunning) this.makeTurn(e);
-    });
+    this.endScreenModal = document.querySelector(".endScreenModal");
+    this.startScreenModal = document.querySelector(".startScreenModal");
+    this.showStartScreen();
   };
 
-  createBoards = () => {
-    const playerBoard = document.createElement("div");
-    playerBoard.className = "playerBoard";
+  startGame = () => {
+    if (this.game.p1.isFleetPlaced(Game.fleet)) {
+      this.modalOverlay.classList.add("hidden");
+      this.startScreenModal.classList.add("hidden");
+      this.startScreenBoard.remove();
+      this.startScreenFleet.remove();
+
+      this.createStatus();
+      this.createBoards();
+      this.createFleetCounters();
+
+      this.isRunning = false;
+      this.enemyBoard.addEventListener("click", (e) => {
+        if (!this.isRunning) this.makeTurn(e);
+      });
+    }
+  };
+
+  showStartScreen = () => {
+    this.modalOverlay.classList.remove("hidden");
+    this.startScreenModal.classList.remove("hidden");
+
+    this.startScreenBoard = this.createBoard();
+    this.startScreenModal
+      .querySelector(".left")
+      .appendChild(this.startScreenBoard);
+    this.startScreenFleet = this.createFleetCounter(Game.fleet);
+    this.startScreenModal
+      .querySelector(".right")
+      .insertBefore(
+        this.startScreenFleet,
+        this.startScreenModal.querySelector(".messageBox"),
+      );
+
+    this.isHorizontal = true;
+    const switchAxisBtn = document.querySelector(".switchAxisBtn");
+    switchAxisBtn.addEventListener("click", this.switchAxis);
+
+    this.addDraggableEventHandlers();
+
+    const autoPlaceBtn = document.querySelector(".autoPlaceBtn");
+    autoPlaceBtn.addEventListener("click", this.autoPlace);
+
+    const startGameBtn = document.querySelector(".startGameBtn");
+    startGameBtn.addEventListener("click", this.startGame);
+    startGameBtn.classList.remove("shiny");
+
+    const resetBtn = document.querySelector(".resetBtn");
+    resetBtn.addEventListener("click", this.resetStartScreen);
+  };
+
+  resetStartScreen = () => {
+    this.game.p1.resetBoard();
+    this.updateBoard(this.startScreenBoard, this.game.p1.board.board);
+    const newFleet = this.createFleetCounter(Game.fleet);
+    this.startScreenModal
+      .querySelector(".right")
+      .replaceChild(newFleet, this.startScreenFleet);
+    this.startScreenFleet = newFleet;
+    const btn = document.querySelector(".switchAxisBtn");
+    this.isHorizontal = true;
+    btn.textContent = "Axis X";
+
+    const startGameBtn = document.querySelector(".startGameBtn");
+    startGameBtn.classList.remove("shiny");
+
+    this.addDraggableEventHandlers();
+  };
+
+  switchAxis = (e) => {
+    const btn = e.target;
+    this.isHorizontal = !this.isHorizontal;
+    if (this.isHorizontal) {
+      btn.textContent = "Axis X";
+      this.startScreenFleet.classList.remove("vertical");
+    } else {
+      btn.textContent = "Axis Y";
+      this.startScreenFleet.classList.add("vertical");
+    }
+  };
+
+  addDraggableEventHandlers = () => {
+    [...this.startScreenFleet.children].forEach((child) => {
+      const ship = child.firstChild;
+      ship.setAttribute("draggable", "true");
+      ship.addEventListener("dragstart", (e) => {
+        this.selectedShip = ship.children.length;
+      });
+    });
+
+    this.startScreenBoard.ondrop = (e) => {
+      e.preventDefault();
+      const [y, x] = this.getCellCoordinates(e.target);
+      const len = this.selectedShip;
+      const sh = this.game.p1.board.placeShip(y, x, len, this.isHorizontal);
+      this.updateBoard(this.startScreenBoard, this.game.p1.board.board);
+      const fleetremaining = this.game.p1.getUnplacedFleet(Game.fleet);
+      this.updateFleetCounter(this.startScreenFleet, fleetremaining);
+      if (Object.keys(fleetremaining).length === 0) {
+        document.querySelector(".startGameBtn").classList.add("shiny");
+      }
+    };
+
+    this.startScreenBoard.ondragover = (e) => {
+      e.preventDefault();
+      this.toggleOnHoverClass(e);
+    };
+
+    this.startScreenBoard.ondragleave = (e) => {
+      this.toggleOnHoverClass(e, true);
+    };
+  };
+
+  toggleOnHoverClass = (e, remove = false) => {
+    const [y, x] = this.getCellCoordinates(e.target);
+    const len = this.selectedShip;
+    let classname;
+    if (this.game.p1.board.validatePlacement(y, x, len, this.isHorizontal)) {
+      classname = "valid";
+    } else classname = "invalid";
+    for (let i = 0; i < len; i++) {
+      if (this.isHorizontal) {
+        const index = Math.min(9, x + i);
+        const el = this.startScreenBoard.children[y].children[index];
+        if (remove) {
+          el.classList.remove(classname);
+        } else {
+          el.classList.add(classname);
+        }
+      } else {
+        const index = Math.min(9, y + i);
+        const el = this.startScreenBoard.children[index].children[x];
+        if (remove) {
+          el.classList.remove(classname);
+        } else {
+          el.classList.add(classname);
+        }
+      }
+    }
+  };
+
+  createBoard = () => {
+    const board = document.createElement("div");
+    board.className = "board";
 
     for (let i = 0; i < 10; i++) {
       const row = document.createElement("div");
@@ -30,19 +167,49 @@ class DisplayController {
         cell.className = "cell";
         row.appendChild(cell);
       }
-      playerBoard.appendChild(row);
+      board.appendChild(row);
     }
+    return board;
+  };
 
-    const enemyBoard = playerBoard.cloneNode(true);
-    enemyBoard.className = "enemyBoard";
+  updateBoard(boardElement, board) {
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const playerCell = boardElement.children[y].children[x];
+        playerCell.className = "cell";
 
-    this.playerBoard = playerBoard;
-    this.enemyBoard = enemyBoard;
+        if (board[y][x].ship) {
+          playerCell.classList.add("boardShip");
+        } else {
+          playerCell.className = "cell";
+        }
 
-    this.content.appendChild(playerBoard);
-    this.content.appendChild(enemyBoard);
+        if (board[y][x].isHit) {
+          playerCell.classList.add("boardHit");
+        }
+      }
+    }
+  }
 
-    this.updateBoards();
+  autoPlace = () => {
+    this.game.p1.placeFleet(Game.fleet);
+    this.updateBoard(this.startScreenBoard, this.game.p1.getBoard());
+    this.startScreenModal.querySelector(".startGameBtn").classList.add("shiny");
+    this.startScreenFleet.innerHTML = "";
+  };
+
+  createBoards = () => {
+    this.playerBoard = this.createBoard();
+    this.enemyBoard = this.createBoard();
+
+    this.playerBoard.className = "playerBoard";
+    this.enemyBoard.className = "enemyBoard";
+
+    this.content.appendChild(this.playerBoard);
+    this.content.appendChild(this.enemyBoard);
+
+    this.updateBoard(this.playerBoard, this.game.p1.getBoard());
+    this.updateBoard(this.enemyBoard, this.game.p2.getBoard());
   };
 
   updateBoards = () => {
@@ -93,14 +260,17 @@ class DisplayController {
       const number = fleet[key];
       const shipDiv = document.createElement("div");
       shipDiv.className = "shipDiv";
+      const ship = document.createElement("div");
+      ship.className = "ship";
       const shipCounter = document.createElement("span");
       shipCounter.className = "shipCounter";
       shipCounter.textContent = `x ${number}`;
       for (let i = 0; i < key; i++) {
         const shipCell = document.createElement("div");
         shipCell.className = "shipCell";
-        shipDiv.appendChild(shipCell);
+        ship.appendChild(shipCell);
       }
+      shipDiv.appendChild(ship);
       shipDiv.appendChild(shipCounter);
       fleetContainer.appendChild(shipDiv);
     });
@@ -110,7 +280,8 @@ class DisplayController {
 
   updateFleetCounter = (fleetContainer, fleet) => {
     [...fleetContainer.children].forEach((shipType) => {
-      const len = shipType.children.length - 1;
+      const ship = shipType.firstChild;
+      const len = ship.children.length;
       if (!fleet[len]) {
         shipType.remove();
       } else {
@@ -131,8 +302,8 @@ class DisplayController {
       this.isRunning = false;
       return;
     }
-    this.updateBoards();
-    this.updateFleetCounter(this.playerFleetContainer, this.game.p1.getFleet());
+    this.updateBoard(this.enemyBoard, this.game.p2.getBoard());
+    this.updateFleetCounter(this.enemyFleetContainer, this.game.p2.getFleet());
     await this.setStatus(this.getResultText(playerResult));
 
     let winner = this.game.checkWinner();
@@ -142,8 +313,8 @@ class DisplayController {
     }
 
     const enemyResult = this.game.autoTurn();
-    this.updateBoards();
-    this.updateFleetCounter(this.enemyFleetContainer, this.game.p2.getFleet());
+    this.updateBoard(this.playerBoard, this.game.p1.getBoard());
+    this.updateFleetCounter(this.playerFleetContainer, this.game.p1.getFleet());
     await this.setStatus(this.getResultText(enemyResult));
 
     winner = this.game.checkWinner();
@@ -168,11 +339,11 @@ class DisplayController {
     } else {
       switch (result) {
         case "miss":
-          return `They have missed`;
+          return `The enemy has missed`;
         case "hit":
-          return `They have hit your ship`;
+          return `The enemy has hit your ship`;
         case "sunk":
-          return `They have sunk your ship`;
+          return `The enemy has sunk your ship`;
         default:
       }
     }
@@ -182,25 +353,27 @@ class DisplayController {
   getCellCoordinates = (cell) => {
     const row = cell.parentElement;
     const x = [...row.children].indexOf(cell);
-    const y = [...this.enemyBoard.children].indexOf(row);
+    const y = [...row.parentElement.children].indexOf(row);
 
     return [y, x];
   };
 
   displayEndScreen = (winner) => {
     this.modalOverlay.classList.remove("hidden");
+    this.endScreenModal.classList.remove("hidden");
 
-    const resultText = this.modalOverlay.querySelector("p");
+    const resultText = this.endScreenModal.querySelector("p");
     resultText.textContent =
       winner.name === this.game.p1.name ? "You won!" : "You lost!";
 
-    const playagainBtn = this.modalOverlay.querySelector("button");
+    const playagainBtn = this.modalOverlay.querySelector(".playAgainBtn");
 
     playagainBtn.addEventListener("click", this.resetGame);
   };
 
   resetGame = () => {
     this.modalOverlay.classList.add("hidden");
+    this.endScreenModal.classList.add("hidden");
     this.content.innerHTML = "";
     this.game = new Game();
     this.init();
@@ -212,7 +385,7 @@ class DisplayController {
 
     const prompt = document.createElement("p");
     prompt.className = "prompt";
-    prompt.textContent = `[${this.game.p1.name}@arthurbais.com] ~/games/battleship.js $`;
+    prompt.innerHTML = `<span class="green">${this.game.p1.name}</span>@<span class="lightblue">arthurbais.com</span>: <span class="blue">~/games/battleship.js</span> $`;
 
     this.status = document.createElement("p");
     this.status.className = "statusText";

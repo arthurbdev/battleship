@@ -11,7 +11,26 @@
     <h1>Battleship</h1>
     <div id="content"></div>
     <div class="modalOverlay hidden">
-      <div class="endScreenModal">
+      <div class="startScreenModal">
+        <div class="left"></div>
+        <div class="right">
+          <button class="switchAxisBtn">Axis X</button>
+          <p class="messageBox">
+            Drag and Drop ships on the board or press
+            <strong>Auto-Place</strong> to place ships automatically.
+          </p>
+          <p class="messageBox">
+            Press <strong>Start Game</strong> when you finish placing Your
+            fleet.
+          </p>
+        </div>
+        <div class="bottom">
+          <button class="autoPlaceBtn">Auto-Place</button>
+          <button class="resetBtn">Reset</button>
+          <button class="startGameBtn">Start Game</button>
+        </div>
+      </div>
+      <div class="endScreenModal hidden">
         <p></p>
         <button class="playAgainBtn">Play Again?</button>
       </div>
